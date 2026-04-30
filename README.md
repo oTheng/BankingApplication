@@ -1,6 +1,6 @@
 This project is how real life banking would make payments and deposit on their account.
 
-======================= How to install =================================
+======================= How to install
 
 Download the lastest git bash:
 https://git-scm.com/install/windows
