@@ -41,6 +41,8 @@ public class Main {
                         catch (NumberFormatException exception){
                             System.out.println(RED+"Can't put a letter in the payment!"+RESET);
                             continue outerLoop;
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
                         }
                     case "L":
                         innerLoop:
@@ -191,36 +193,7 @@ public class Main {
 
         }
     }
-    public static void displayQuestionPayment(LocalDate date, LocalTime time) throws InterruptedException {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("What is the description?");
-        String description = scanner.nextLine();
-
-        System.out.println("Credit or Debt?");
-        String vendor = scanner.nextLine();
-
-        System.out.println("What is the amount of payment?");
-        double amount = Float.parseFloat(scanner.nextLine());
-
-        Transaction newTransaction = new Transaction(date, time, description, vendor, amount*-1);
-        System.out.println(WHITE + "Initializing....");
-        for(int i=10; i>=0; i--) {
-            Thread.sleep(500);
-            if(i<10 && i>5){
-                System.out.println(YELLOW+"Saving..."+i);
-            }
-            if (i<=5){
-                System.out.println(YELLOW+"Writing..."+i);
-            }
-            if(i==0){
-                Thread.sleep(1000);
-                System.out.println(GREEN+"Success! You made your Payment!"+RESET);
-                FileManager.writeProduct(newTransaction);
-            }
-
-        }
-    }
-    public static void addPayment(Scanner scanner) {
+    public static void addPayment(Scanner scanner) throws InterruptedException {
         System.out.println("Do you want to enter the date manually?");
         System.out.println("1. Yes");
         System.out.println("2. No");
@@ -241,6 +214,8 @@ public class Main {
                     displayPaymentQuestion(newDate, newTime);
                 } catch (DateTimeParseException e) {
                     System.out.println("Invaild");
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
                 break;
             case 2:
@@ -262,7 +237,7 @@ public class Main {
                 System.out.println(RED+"Invalid Input"+RESET);
         }
     }
-    public static void displayPaymentQuestion(LocalDate date, LocalTime time){
+    public static void displayPaymentQuestion(LocalDate date, LocalTime time) throws InterruptedException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("What is the description?");
         String description = scanner.nextLine();
@@ -286,7 +261,22 @@ public class Main {
         amount = amount * (-1);
 
         Transaction newTransaction = new Transaction(date, time, description, vendor, amount);
-        FileManager.writeProduct(newTransaction);
+        System.out.println(WHITE + "Initializing....");
+        for(int i=10; i>=0; i--) {
+            Thread.sleep(500);
+            if(i<10 && i>5){
+                System.out.println(YELLOW+"Saving..."+i);
+            }
+            if (i<=5){
+                System.out.println(YELLOW+"Writing..."+i);
+            }
+            if(i==0){
+                Thread.sleep(1000);
+                System.out.println(GREEN+"Success! You made your Deposit!"+RESET);
+                FileManager.writeProduct(newTransaction);
+            }
+
+        }
     }
 
     public static void displayTransaction(List<Transaction> products) {
