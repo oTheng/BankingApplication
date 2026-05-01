@@ -314,7 +314,7 @@ public class Main {
         LocalDate today = LocalDate.now();
         LocalDate oneYearAgo = today.minusYears(1);
         for (Transaction transaction : products) {
-            if (transaction.getDate().getYear() == oneYearAgo.getYear() && transaction.getDate().getMonth() == oneYearAgo.getMonth()) {
+            if (transaction.getDate().getYear() == oneYearAgo.getYear()) {
                 System.out.printf("Date: %tF Time: %tT Description: %s Vendor: %s Amount: %.2f %n", transaction.getDate(), transaction.getTime(), transaction.getDescription(), transaction.getVendor(), transaction.getAmount());
             }
         }
