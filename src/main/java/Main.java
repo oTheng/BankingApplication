@@ -15,14 +15,12 @@ public class Main {
         // Had to research how to break out of a while loop without exiting the system and came across outerLoop
         while (true) {
             while (true) {
-
-                System.out.println("\n=== Home Screen ===");
+                System.out.println(RESET+"\n=== Home Screen ===");
                 System.out.println("D. Add Deposit");
                 System.out.println("P. Make Payment");
                 System.out.println("L. Ledger Screen");
                 System.out.println("X. Exit");
                 System.out.print("Choose an option: ");
-
                 String choice = scanner.nextLine();
                 choice = choice.toUpperCase();
                 switch (choice) {
@@ -31,14 +29,18 @@ public class Main {
                         addDeposit(scanner);
                         break;}
                     catch (NumberFormatException exception){
-                        System.out.println("Can't put a letter in the deposit!");
+                        System.out.println(RED+"Can't put a letter in the deposit!"+RESET);
+                        continue outerLoop;
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
                     }
                     case "P":
                         try{
                             addPayment(scanner);
                             break;}
                         catch (NumberFormatException exception){
-                            System.out.println("Can't put a letter in the payment!");
+                            System.out.println(RED+"Can't put a letter in the payment!"+RESET);
+                            continue outerLoop;
                         }
                     case "L":
                         innerLoop:
@@ -93,31 +95,32 @@ public class Main {
                                                         searchVendor(transaction, scanner);
                                                         break;
                                                     }catch (InputMismatchException e){
-                                                        System.out.println("Must be a string!");
+                                                        System.out.println(RED+"Must be a string!"+RESET);
                                                     }
                                                 case 0:
                                                     continue innerLoop;
                                                 default:
-                                                    System.out.println("Choose a number between 1-5, 0 is to go back");
+                                                    System.out.println(RED+"Choose a number between 1-5, 0 is to go back"+RESET);
                                             }
                                         }
                                     case "O":
                                         continue outerLoop;
                                     default:
-                                        System.out.println("Choose a letter that was given");
+                                        System.out.println(RED+"Choose a letter that was given"+RESET);
                                 }
                             }
                         }
                     case "X":
+                        System.out.println(WHITE+"Okay Goodbye!"+RESET);
                         System.exit(0);
                     default:
-                        System.out.println("You have to choose the options that was given");
+                        System.out.println(RED+"You have to choose the options that was given"+RESET);
                 }
             }
         }
     }
 
-    public static void addDeposit(Scanner scanner) {
+    public static void addDeposit(Scanner scanner) throws InterruptedException {
         System.out.println("Do you want to enter the date manually?");
         System.out.println("1. Yes");
         System.out.println("2. No");
@@ -159,7 +162,7 @@ public class Main {
                 System.out.println("Invalid Input");
         }
     }
-    public static void displayQuestion(LocalDate date, LocalTime time){
+    public static void displayQuestion(LocalDate date, LocalTime time) throws InterruptedException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("What is the description?");
         String description = scanner.nextLine();
@@ -171,9 +174,52 @@ public class Main {
         double amount = Float.parseFloat(scanner.nextLine());
 
         Transaction newTransaction = new Transaction(date, time, description, vendor, amount);
-        FileManager.writeProduct(newTransaction);
-    }
+        System.out.println(WHITE + "Initializing....");
+        for(int i=10; i>=0; i--) {
+            Thread.sleep(500);
+            if(i<10 && i>5){
+                System.out.println(YELLOW+"Saving..."+i);
+            }
+            if (i<=5){
+                System.out.println(YELLOW+"Writing..."+i);
+            }
+            if(i==0){
+                Thread.sleep(1000);
+                System.out.println(GREEN+"Success! You made your Deposit!"+RESET);
+                FileManager.writeProduct(newTransaction);
+            }
 
+        }
+    }
+    public static void displayQuestionPayment(LocalDate date, LocalTime time) throws InterruptedException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("What is the description?");
+        String description = scanner.nextLine();
+
+        System.out.println("Credit or Debt?");
+        String vendor = scanner.nextLine();
+
+        System.out.println("What is the amount of payment?");
+        double amount = Float.parseFloat(scanner.nextLine());
+
+        Transaction newTransaction = new Transaction(date, time, description, vendor, amount*-1);
+        System.out.println(WHITE + "Initializing....");
+        for(int i=10; i>=0; i--) {
+            Thread.sleep(500);
+            if(i<10 && i>5){
+                System.out.println(YELLOW+"Saving..."+i);
+            }
+            if (i<=5){
+                System.out.println(YELLOW+"Writing..."+i);
+            }
+            if(i==0){
+                Thread.sleep(1000);
+                System.out.println(GREEN+"Success! You made your Payment!"+RESET);
+                FileManager.writeProduct(newTransaction);
+            }
+
+        }
+    }
     public static void addPayment(Scanner scanner) {
         System.out.println("Do you want to enter the date manually?");
         System.out.println("1. Yes");
@@ -210,10 +256,10 @@ public class Main {
                 String FormattedTime = time.format(TimeFormatter);
                 System.out.println(FormattedTime);
 
-                displayQuestion(date, time);
+                displayPaymentQuestion(date, time);
                 break;
             default:
-                System.out.println("Invalid Input");
+                System.out.println(RED+"Invalid Input"+RESET);
         }
     }
     public static void displayPaymentQuestion(LocalDate date, LocalTime time){
@@ -222,7 +268,18 @@ public class Main {
         String description = scanner.nextLine();
 
         System.out.println("Credit or Debt Card?");
-        String vendor = scanner.nextLine();
+        System.out.println("1. Credit Card");
+        System.out.println("2. Debit Card");
+        int vendors = Integer.parseInt(scanner.nextLine());
+        String vendor;
+        if (vendors == 1) {
+            vendor = "Credit";
+        } else if (vendors == 2) {
+            vendor = "Debit";
+        } else{
+            System.out.println(RED+"Wrong input!"+RESET);
+            return;
+        }
 
         System.out.println("How much payment do you want to add?");
         double amount = Float.parseFloat(scanner.nextLine());
@@ -301,4 +358,9 @@ public class Main {
             }
         }
     }
+    public static final String WHITE = "\u001B[37m";
+    public static final String RESET = "\u001B[0m";
+    public static final String RED = "\u001B[31m";
+    public static final String GREEN = "\u001B[32m";
+    public static final String YELLOW = "\u001B[33m";
 }
